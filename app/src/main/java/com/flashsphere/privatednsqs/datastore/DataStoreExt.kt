@@ -70,3 +70,10 @@ suspend fun DataStore<Preferences>.requireUnlock(): Boolean {
 suspend fun DataStore<Preferences>.requireUnlock(value: Boolean) {
     return update(PreferenceKeys.REQUIRE_UNLOCK, value)
 }
+suspend fun DataStore<Preferences>.customDnsProviders(): String {
+    return get(PreferenceKeys.CUSTOM_DNS_PROVIDERS)
+}
+suspend fun DataStore<Preferences>.customDnsProviders(value: String) {
+    return update(PreferenceKeys.CUSTOM_DNS_PROVIDERS, value)
+}
+

@@ -5,6 +5,7 @@ Toggle and configure your Private DNS settings on Android 9+ from the comfort of
 This is a fork of [joshuawolfsohn/Private-DNS-Quick-Tile](https://github.com/joshuawolfsohn/Private-DNS-Quick-Tile) with changes to add the following features:
 - Add setting to require device to be unlock to toggle tile 
 - Shizuku support
+- Pre-configure a list of custom DNS providers and switch between them easily from the UI
 
 ## Setup
 

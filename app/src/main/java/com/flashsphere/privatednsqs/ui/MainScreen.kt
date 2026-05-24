@@ -98,11 +98,19 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.flashsphere.privatednsqs.R
+import com.flashsphere.privatednsqs.datastore.DnsMode
+import com.flashsphere.privatednsqs.datastore.DnsProvider
 import com.flashsphere.privatednsqs.ui.modifier.moveFocusOnTab
 import com.flashsphere.privatednsqs.ui.theme.AppTheme
 import com.flashsphere.privatednsqs.ui.theme.AppTypography
 import com.flashsphere.privatednsqs.ui.theme.Monospace
 import com.flashsphere.privatednsqs.viewmodel.MainViewModel
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.width
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -139,6 +147,13 @@ fun MainScreen(
         showAppInfo = showAppInfo,
         showMoreInfo = showMoreInfo,
         requestAddTile = requestAddTile,
+        customDnsProvidersFlow = viewModel.customDnsProviders,
+        newProviderNameState = viewModel.newProviderNameState,
+        newProviderHostnameState = viewModel.newProviderHostnameState,
+        activeDnsModeFlow = viewModel.activeDnsMode,
+        onAddProviderClick = viewModel::addCustomDnsProvider,
+        onDeleteProviderClick = viewModel::deleteCustomDnsProvider,
+        onSelectProviderClick = viewModel::selectDnsProvider,
     )
 }
 
@@ -162,6 +177,13 @@ private fun MainScreen(
     showAppInfo: () -> Unit,
     showMoreInfo: () -> Unit,
     requestAddTile: () -> Unit,
+    customDnsProvidersFlow: StateFlow<List<DnsProvider>>,
+    newProviderNameState: TextFieldState,
+    newProviderHostnameState: TextFieldState,
+    activeDnsModeFlow: StateFlow<DnsMode>,
+    onAddProviderClick: () -> Unit,
+    onDeleteProviderClick: (DnsProvider) -> Unit,
+    onSelectProviderClick: (DnsProvider) -> Unit,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val focusRequester = remember { FocusRequester() }
@@ -286,7 +308,138 @@ private fun MainScreen(
                     )
                 }
 
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Header(stringResource(R.string.dns_providers))
+
+                val providers = customDnsProvidersFlow.collectAsStateWithLifecycle().value
+                val activeHostname = dnsHostnameFlow.collectAsStateWithLifecycle().value
+                val activeMode = activeDnsModeFlow.collectAsStateWithLifecycle().value
+
+                if (providers.isEmpty()) {
+                    Text(
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                        text = "No custom DNS providers.",
+                        style = AppTypography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                    )
+                } else {
+                    Column(
+                        modifier = Modifier.padding(horizontal = 4.dp, vertical = 8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        providers.forEach { provider ->
+                            val isActive = activeMode == DnsMode.On && activeHostname == provider.hostname
+                            val cardColor = if (isActive) {
+                                CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                                )
+                            } else {
+                                CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            val border = if (isActive) {
+                                androidx.compose.foundation.BorderStroke(2.dp, MaterialTheme.colorScheme.primary)
+                            } else {
+                                null
+                            }
+
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        onSelectProviderClick(provider)
+                                    },
+                                shape = RoundedCornerShape(12.dp),
+                                colors = cardColor,
+                                border = border
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(16.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(
+                                            text = provider.name,
+                                            style = AppTypography.bodyMedium,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                        Spacer(modifier = Modifier.height(4.dp))
+                                        Text(
+                                            text = provider.hostname,
+                                            fontFamily = Monospace,
+                                            style = AppTypography.bodySmall,
+                                            color = if (isActive) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
+                                        )
+                                    }
+                                    IconButton(
+                                        onClick = { onDeleteProviderClick(provider) }
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Filled.Delete,
+                                            contentDescription = stringResource(R.string.revert),
+                                            tint = if (isActive) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
                 Spacer(modifier = Modifier.height(8.dp))
+
+                // Add Provider Form
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 4.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f)
+                    ),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(
+                            text = stringResource(R.string.add_provider),
+                            style = AppTypography.bodyMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        TextField(
+                            modifier = Modifier,
+                            textFieldState = newProviderNameState,
+                            label = stringResource(R.string.provider_name_hint),
+                            trailingIcon = {}
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        TextField(
+                            modifier = Modifier,
+                            textFieldState = newProviderHostnameState,
+                            label = stringResource(R.string.provider_hostname_hint),
+                            trailingIcon = {}
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Button(
+                            onClick = {
+                                focusManager.clearFocus()
+                                onAddProviderClick()
+                            },
+                            modifier = Modifier.align(Alignment.End)
+                        ) {
+                            Icon(imageVector = Icons.Filled.Add, contentDescription = null)
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(text = stringResource(R.string.add_provider))
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
 
                 Header(stringResource(R.string.other_settings))
 
@@ -518,6 +671,10 @@ private fun MainScreenPreview() {
     val dnsHostnameTextFieldState = TextFieldState()
     val requireUnlock = remember { MutableStateFlow(false) }
     val dnsHostnameFlow = remember { MutableStateFlow("") }
+    val customDnsProviders = remember { MutableStateFlow(listOf(DnsProvider("Cloudflare", "one.one.one.one"))) }
+    val newProviderNameState = remember { TextFieldState() }
+    val newProviderHostnameState = remember { TextFieldState() }
+    val activeDnsMode = remember { MutableStateFlow(DnsMode.On) }
 
     MainScreen(
         openHelpDialogFlow = openHelpDialogFlow,
@@ -537,5 +694,12 @@ private fun MainScreenPreview() {
         showAppInfo = {},
         showMoreInfo = {},
         requestAddTile = {},
+        customDnsProvidersFlow = customDnsProviders,
+        newProviderNameState = newProviderNameState,
+        newProviderHostnameState = newProviderHostnameState,
+        activeDnsModeFlow = activeDnsMode,
+        onAddProviderClick = {},
+        onDeleteProviderClick = {},
+        onSelectProviderClick = {},
     )
 }

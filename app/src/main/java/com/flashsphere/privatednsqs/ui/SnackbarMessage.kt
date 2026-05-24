@@ -57,3 +57,31 @@ object WriteSecureSettingPermissionGrantedUsingShizuku : SnackbarMessage {
         return resources.getString(R.string.permission_granted_using_shizuku)
     }
 }
+
+@Parcelize
+object ProviderAddedMessage : SnackbarMessage {
+    override fun getMessage(resources: Resources): String {
+        return resources.getString(R.string.provider_added)
+    }
+}
+
+@Parcelize
+object ProviderDeletedMessage : SnackbarMessage {
+    override fun getMessage(resources: Resources): String {
+        return resources.getString(R.string.provider_deleted)
+    }
+}
+
+@Parcelize
+object ProviderAlreadyExistsMessage : SnackbarMessage {
+    override fun getMessage(resources: Resources): String {
+        return resources.getString(R.string.provider_already_exists)
+    }
+}
+
+@Parcelize
+object InvalidProviderFieldsMessage : SnackbarMessage {
+    override fun getMessage(resources: Resources): String {
+        return resources.getString(R.string.invalid_provider_fields)
+    }
+}

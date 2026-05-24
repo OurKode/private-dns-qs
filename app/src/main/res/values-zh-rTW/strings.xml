@@ -34,4 +34,12 @@
     <string name="ok">確定</string>
     <string name="revert">復原</string>
     <string name="help">說明</string>
+    <string name="dns_providers">DNS 提供者</string>
+    <string name="add_provider">新增提供者</string>
+    <string name="provider_name_hint">提供者名稱 (例如 Cloudflare)</string>
+    <string name="provider_hostname_hint">主機名稱 (例如 one.one.one.one)</string>
+    <string name="provider_added">成功新增提供者</string>
+    <string name="provider_deleted">提供者已刪除</string>
+    <string name="provider_already_exists">提供者主機名稱已存在</string>
+    <string name="invalid_provider_fields">請輸入有效的名稱和主機名稱</string>
 </resources>

@@ -35,4 +35,12 @@
     <string name="ok">OK</string>
     <string name="revert">Revert</string>
     <string name="help">Help</string>
+    <string name="dns_providers">DNS Providers</string>
+    <string name="add_provider">Add Provider</string>
+    <string name="provider_name_hint">Provider Name (e.g. Cloudflare)</string>
+    <string name="provider_hostname_hint">Hostname (e.g. one.one.one.one)</string>
+    <string name="provider_added">Provider added successfully</string>
+    <string name="provider_deleted">Provider deleted</string>
+    <string name="provider_already_exists">Provider hostname already exists</string>
+    <string name="invalid_provider_fields">Please enter a valid name and hostname</string>
 </resources>
