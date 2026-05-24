@@ -1,3 +1,4 @@
+import java.util.Properties
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -43,15 +44,24 @@ android {
     }
     signingConfigs {
         create("release") {
-            storeFile = file(project.properties["PRIVATE_DNS_QS_RELEASE_STORE_FILE"] as String)
-            storePassword = project.properties["PRIVATE_DNS_QS_RELEASE_STORE_PASSWORD"] as String
-            keyAlias = project.properties["PRIVATE_DNS_QS_RELEASE_KEY_ALIAS"] as String
-            keyPassword = project.properties["PRIVATE_DNS_QS_RELEASE_KEY_PASSWORD"] as String
+            val localProperties = Properties()
+            val localPropertiesFile = rootProject.file("local.properties")
+            if (localPropertiesFile.exists()) {
+                localProperties.load(localPropertiesFile.inputStream())
+            }
 
-            enableV1Signing = true
-            enableV2Signing = true
-            enableV3Signing = true
-            enableV4Signing = true
+            val storeFilePath = (localProperties["PRIVATE_DNS_QS_RELEASE_STORE_FILE"] ?: project.findProperty("PRIVATE_DNS_QS_RELEASE_STORE_FILE")) as? String
+            if (storeFilePath != null) {
+                storeFile = file(storeFilePath)
+                storePassword = (localProperties["PRIVATE_DNS_QS_RELEASE_STORE_PASSWORD"] ?: project.findProperty("PRIVATE_DNS_QS_RELEASE_STORE_PASSWORD")) as? String
+                keyAlias = (localProperties["PRIVATE_DNS_QS_RELEASE_KEY_ALIAS"] ?: project.findProperty("PRIVATE_DNS_QS_RELEASE_KEY_ALIAS")) as? String
+                keyPassword = (localProperties["PRIVATE_DNS_QS_RELEASE_KEY_PASSWORD"] ?: project.findProperty("PRIVATE_DNS_QS_RELEASE_KEY_PASSWORD")) as? String
+
+                enableV1Signing = true
+                enableV2Signing = true
+                enableV3Signing = true
+                enableV4Signing = true
+            }
         }
     }
     buildTypes {

@@ -20,8 +20,10 @@ import com.flashsphere.privatednsqs.datastore.dataStore
 import com.flashsphere.privatednsqs.datastore.dnsAutoToggle
 import com.flashsphere.privatednsqs.datastore.dnsOffToggle
 import com.flashsphere.privatednsqs.datastore.dnsOnToggle
+import com.flashsphere.privatednsqs.datastore.getFlow
 import com.flashsphere.privatednsqs.datastore.getStateFlow
 import com.flashsphere.privatednsqs.datastore.requireUnlock
+import com.flashsphere.privatednsqs.datastore.update
 import com.flashsphere.privatednsqs.service.PrivateDnsTileService
 import com.flashsphere.privatednsqs.ui.ChangesSavedMessage
 import com.flashsphere.privatednsqs.ui.InvalidProviderFieldsMessage
